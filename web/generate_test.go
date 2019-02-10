@@ -30,16 +30,16 @@ func TestGenerateHandler(t *testing.T) {
 }
 
 func TestGenerateHandlerOnlyAcceptsGet(t *testing.T) {
-		is := is.New(t)
-		h := http.HandlerFunc(web.GenerateHandler)
-		srv := httptest.NewServer(h)
-		defer srv.Close()
-		for _, method := range []string{"POST", "PUT", "PATCH", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE"} {
-			w := httptest.NewRecorder()
-			req:= httptest.NewRequest(method, srv.URL, nil)
+	is := is.New(t)
+	h := http.HandlerFunc(web.GenerateHandler)
+	srv := httptest.NewServer(h)
+	defer srv.Close()
+	for _, method := range []string{"POST", "PUT", "PATCH", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE"} {
+		w := httptest.NewRecorder()
+		req:= httptest.NewRequest(method, srv.URL, nil)
 
-			h.ServeHTTP(w, req)
+		h.ServeHTTP(w, req)
 
-			is.Equal(http.StatusMethodNotAllowed, w.Result().StatusCode)
-		}
+		is.Equal(http.StatusMethodNotAllowed, w.Result().StatusCode)
+	}
 }
