@@ -34,8 +34,7 @@ func TestLearnHandler(t *testing.T) {
 
 	h.ServeHTTP(w, req)
 
-	n, _ := w.Result().Body.Read(make([]byte, 1))
-	is.Equal(0, n)
+	is.Equal("", w.Body.String())
 	is.Equal(http.StatusAccepted, w.Result().StatusCode)
 }
 
