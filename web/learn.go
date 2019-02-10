@@ -11,7 +11,7 @@ import (
 func LearnHandler(learner trigram.Learner) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodPost {
-			w.WriteHeader(http.StatusBadRequest)
+			w.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
 		words := make([]string, 0)

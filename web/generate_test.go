@@ -28,3 +28,18 @@ func TestGenerateHandler(t *testing.T) {
 	is.Equal(expBody, actBody)
 	is.Equal(http.StatusOK, w.Result().StatusCode)
 }
+
+func TestGenerateHandlerOnlyAcceptsGet(t *testing.T) {
+		is := is.New(t)
+		h := http.HandlerFunc(web.GenerateHandler)
+		srv := httptest.NewServer(h)
+		defer srv.Close()
+		for _, method := range []string{"POST", "PUT", "PATCH", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE"} {
+			w := httptest.NewRecorder()
+			req:= httptest.NewRequest(method, srv.URL, nil)
+
+			h.ServeHTTP(w, req)
+
+			is.Equal(http.StatusMethodNotAllowed, w.Result().StatusCode)
+		}
+}

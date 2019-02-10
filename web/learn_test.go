@@ -50,7 +50,7 @@ func TestLearnHandlerOnlyAcceptsPost(t *testing.T) {
 
 		h.ServeHTTP(w, req)
 
-		is.Equal(http.StatusBadRequest, w.Result().StatusCode)
+		is.Equal(http.StatusMethodNotAllowed, w.Result().StatusCode)
 	}
 }
 
