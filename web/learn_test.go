@@ -28,7 +28,7 @@ func TestLearnHandler(t *testing.T) {
 	srv := httptest.NewServer(h)
 	defer srv.Close()
 	w := httptest.NewRecorder()
-	req:= httptest.NewRequest(http.MethodPost, srv.URL,
+	req := httptest.NewRequest(http.MethodPost, srv.URL,
 		strings.NewReader("To be or not to be, that is the question"))
 	req.Header.Set("Content-Type", "text/plain")
 
@@ -45,7 +45,7 @@ func TestLearnHandlerOnlyAcceptsPost(t *testing.T) {
 	defer srv.Close()
 	for _, method := range []string{"GET", "PUT", "PATCH", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE"} {
 		w := httptest.NewRecorder()
-		req:= httptest.NewRequest(method, srv.URL, nil)
+		req := httptest.NewRequest(method, srv.URL, nil)
 		req.Header.Set("Content-Type", "text/plain")
 
 		h.ServeHTTP(w, req)
@@ -62,7 +62,7 @@ func TestLearnHandlerCallsTrigramLearner(t *testing.T) {
 	mockLearner := mockTrigramLearner{
 		LearnFunc: func(words []string) {
 			learnerInvoked, learnerArg = true, words
-	}}
+		}}
 
 	req, err := http.NewRequest(http.MethodPost, "a_url",
 		strings.NewReader("To be or not to be, that is the question"))
@@ -73,7 +73,7 @@ func TestLearnHandlerCallsTrigramLearner(t *testing.T) {
 	h.ServeHTTP(httptest.NewRecorder(), req)
 
 	is.True(learnerInvoked)
-	is.Equal([]string{"to", "be" ,"or", "not", "to", "be", "that", "is", "the", "question"}, learnerArg)
+	is.Equal([]string{"to", "be", "or", "not", "to", "be", "that", "is", "the", "question"}, learnerArg)
 }
 
 func TestLearnHandlerCallsTrigramLearnerWithLineBreaks(t *testing.T) {
@@ -99,5 +99,5 @@ that is the question`))
 	h.ServeHTTP(httptest.NewRecorder(), req)
 
 	is.True(learnerInvoked)
-	is.Equal([]string{"to", "be" ,"or", "not", "to", "be", "that", "is", "the", "question"}, learnerArg)
+	is.Equal([]string{"to", "be", "or", "not", "to", "be", "that", "is", "the", "question"}, learnerArg)
 }
