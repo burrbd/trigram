@@ -76,5 +76,4 @@ func TestGenerateHandlerCallsLanguageGenerator(t *testing.T) {
 
 	is.True(generatorInvoked)
 	is.Equal(expBody, w.Body.String())
-
 }
