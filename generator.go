@@ -1,7 +1,11 @@
 package trigram
 
+import "strings"
+
 type Store interface {
 	Add(Trigram)
+	GetByPrefix(prefix [2]string) []Trigram
+	Seed() [2]string
 }
 
 type Learner interface {
@@ -28,6 +32,21 @@ func (g *NaturalLanguageGenerator) Learn(words []string) {
 		}
 		g.store.Add(NewTrigram(words[k], words[k+1], words[k+2]))
 	}
+}
+
+func (g *NaturalLanguageGenerator) Generate() string {
+	out := make([]string, 0)
+	trigrams := g.store.GetByPrefix(g.store.Seed())
+	n := len(trigrams)
+	for i := 0; i < n; i++ {
+		if i == n-1 {
+			out = append(out, trigrams[i].second, trigrams[i].third)
+		} else {
+			out = append(out, trigrams[i].second)
+		}
+	}
+
+	return strings.Join(out, " ")
 }
 
 type Trigram struct {
