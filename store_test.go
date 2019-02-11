@@ -10,7 +10,7 @@ import (
 
 func TestMapStoreGetByPrefix(t *testing.T) {
 	is := is.New(t)
-	store := trigram.MapStore{}
+	store := trigram.NewMapStore(-1)
 	exp := trigram.NewTrigram("a", "b", "c")
 	store.Add(exp)
 
@@ -24,7 +24,7 @@ func TestMapStoreGetByPrefix(t *testing.T) {
 func TestMapStoreGetByPrefixMultiple(t *testing.T) {
 	is := is.New(t)
 
-	store := trigram.MapStore{}
+	store := trigram.NewMapStore(-1)
 	store.Add(trigram.NewTrigram("a", "b", "c"))
 	store.Add(trigram.NewTrigram("b", "c", "d"))
 	store.Add(trigram.NewTrigram("c", "d", "e"))
@@ -37,4 +37,50 @@ func TestMapStoreGetByPrefixMultiple(t *testing.T) {
 	}
 
 	is.Equal(exp, act)
+}
+
+func TestMapStoreGetByPrefixCircular(t *testing.T) {
+	is := is.New(t)
+
+	store := trigram.NewMapStore(4)
+	store.Add(trigram.NewTrigram("a", "b", "c"))
+	store.Add(trigram.NewTrigram("b", "c", "a"))
+	store.Add(trigram.NewTrigram("c", "a", "b"))
+
+	act := store.GetByPrefix([2]string{"a", "b"})
+	exp := []trigram.Trigram{
+		trigram.NewTrigram("a", "b", "c"),
+		trigram.NewTrigram("b", "c", "a"),
+		trigram.NewTrigram("c", "a", "b"),
+		trigram.NewTrigram("a", "b", "c"),
+	}
+
+	is.Equal(exp, act)
+}
+
+func TestMapStoreGetByPrefixWithWeightedOptions(t *testing.T) {
+	is := is.New(t)
+
+	store := trigram.NewMapStore(-1)
+	store.Add(trigram.NewTrigram("a", "b", "c"))
+	store.Add(trigram.NewTrigram("b", "c", "foo"))
+	store.Add(trigram.NewTrigram("b", "c", "bar"))
+
+	found := 0
+	for {
+		result := store.GetByPrefix([2]string{"a", "b"})
+		if result[1] == trigram.NewTrigram("b", "c", "foo") {
+			found++
+			break
+		}
+	}
+	for {
+		result := store.GetByPrefix([2]string{"a", "b"})
+		if result[1] == trigram.NewTrigram("b", "c", "bar") {
+			found++
+			break
+		}
+	}
+
+	is.Equal(2, found)
 }

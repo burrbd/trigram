@@ -1,19 +1,31 @@
 package trigram
 
+import "math/rand"
+
 type Store interface {
 	Add(Trigram)
 	GetByPrefix(prefix [2]string) []Trigram
 	Seed() [2]string
 }
 
-type MapStore map[string][]Trigram
+type MapStore struct {
+	MaxResultLength int
+	trigrams        map[string][]Trigram
+}
+
+func NewMapStore(max int) MapStore {
+	return MapStore{
+		MaxResultLength: max,
+		trigrams:        make(map[string][]Trigram),
+	}
+}
 
 func (s MapStore) Add(tg Trigram) {
 	key := tg.first + tg.second
-	if slice, ok := s[key]; !ok {
-		s[key] = []Trigram{tg}
+	if slice, ok := s.trigrams[key]; !ok {
+		s.trigrams[key] = []Trigram{tg}
 	} else {
-		s[key] = append(slice, tg)
+		s.trigrams[key] = append(slice, tg)
 	}
 }
 
@@ -24,12 +36,18 @@ func (s MapStore) GetByPrefix(prefix [2]string) []Trigram {
 }
 
 func (s MapStore) follow(key string, out []Trigram) []Trigram {
-	trigrams, ok := s[key]
+	if s.MaxResultLength != -1 && len(out) >= s.MaxResultLength {
+		return out
+	}
+	trigrams, ok := s.trigrams[key]
 	if !ok {
 		return out
 	}
-	out = append(out, trigrams[0])
-	key = trigrams[0].second + trigrams[0].third
+
+	trigram := trigrams[rand.Intn(len(trigrams))]
+
+	out = append(out, trigram)
+	key = trigram.second + trigram.third
 	return s.follow(key, out)
 }
 
