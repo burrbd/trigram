@@ -2,12 +2,6 @@ package trigram
 
 import "strings"
 
-type Store interface {
-	Add(Trigram)
-	GetByPrefix(prefix [2]string) []Trigram
-	Seed() [2]string
-}
-
 type Learner interface {
 	Learn([]string)
 }
@@ -47,12 +41,4 @@ func (g *NaturalLanguageGenerator) Generate() string {
 	}
 
 	return strings.Join(out, " ")
-}
-
-type Trigram struct {
-	first, second, third string
-}
-
-func NewTrigram(first, second, third string) Trigram {
-	return Trigram{first, second, third}
 }
