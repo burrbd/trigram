@@ -34,9 +34,9 @@ func (g *NaturalLanguageGenerator) Generate() string {
 	n := len(trigrams)
 	for i := 0; i < n; i++ {
 		if i == n-1 {
-			out = append(out, trigrams[i].second, trigrams[i].third)
+			out = append(out, trigrams[i].Second, trigrams[i].Third)
 		} else {
-			out = append(out, trigrams[i].second)
+			out = append(out, trigrams[i].Second)
 		}
 	}
 

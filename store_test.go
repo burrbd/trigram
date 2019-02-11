@@ -84,3 +84,32 @@ func TestMapStoreGetByPrefixWithWeightedOptions(t *testing.T) {
 
 	is.Equal(2, found)
 }
+
+func TestMapStoreGetByPrefixWithProportionateRandomness(t *testing.T) {
+	is := is.New(t)
+
+	store := trigram.NewMapStore(-1)
+	store.Add(trigram.NewTrigram("a", "b", "c"))
+	store.Add(trigram.NewTrigram("b", "c", "foo"))
+	for i := 0; i <= 3; i++ {
+		store.Add(trigram.NewTrigram("b", "c", "bar"))
+	}
+	contest := map[string]int{"foo": 0, "bar": 0}
+
+	for i := 0; i <= 10000; i++ {
+		result := store.GetByPrefix([2]string{"a", "b"})[1]
+		contest[result.Third]++
+	}
+
+	is.Equal(3, contest["bar"]/contest["foo"])
+}
+
+func TestMapStoreSeed(t *testing.T) {
+	is := is.New(t)
+
+	store := trigram.NewMapStore(-1)
+	store.Add(trigram.NewTrigram("a", "b", "c"))
+	seed := store.Seed()
+
+	is.Equal([2]string{"a", "b"}, seed)
+}
