@@ -113,3 +113,21 @@ func TestMapStoreSeed(t *testing.T) {
 
 	is.Equal([2]string{"a", "b"}, seed)
 }
+
+func TestMapStoreConcurrency(t *testing.T) {
+	store := trigram.NewMapStore(-1)
+
+	go func() {
+		store.Add(trigram.NewTrigram("a", "b", "c"))
+	}()
+
+	go func() {
+		store.Seed()
+	}()
+
+	go func() {
+		store.GetByPrefix([2]string{"a", "b"})
+	}()
+
+	store.Add(trigram.NewTrigram("b", "c", "d"))
+}

@@ -1,6 +1,9 @@
 package trigram
 
-import "math/rand"
+import (
+	"math/rand"
+	"sync"
+)
 
 type Store interface {
 	Add(Trigram)
@@ -10,17 +13,20 @@ type Store interface {
 
 type MapStore struct {
 	MaxResultLength int
-	trigrams        map[string][]Trigram
+	sync.RWMutex
+	trigrams map[string][]Trigram
 }
 
-func NewMapStore(max int) MapStore {
-	return MapStore{
+func NewMapStore(max int) *MapStore {
+	return &MapStore{
 		MaxResultLength: max,
 		trigrams:        make(map[string][]Trigram),
 	}
 }
 
-func (s MapStore) Add(tg Trigram) {
+func (s *MapStore) Add(tg Trigram) {
+	s.Lock()
+	defer s.Unlock()
 	key := tg.First + tg.Second
 	if slice, ok := s.trigrams[key]; !ok {
 		s.trigrams[key] = []Trigram{tg}
@@ -29,7 +35,9 @@ func (s MapStore) Add(tg Trigram) {
 	}
 }
 
-func (s MapStore) GetByPrefix(prefix [2]string) []Trigram {
+func (s *MapStore) GetByPrefix(prefix [2]string) []Trigram {
+	s.RLock()
+	defer s.RUnlock()
 	out := make([]Trigram, 0)
 	key := prefix[0] + prefix[1]
 	return s.follow(key, out)
@@ -51,7 +59,9 @@ func (s MapStore) follow(key string, out []Trigram) []Trigram {
 	return s.follow(key, out)
 }
 
-func (s MapStore) Seed() [2]string {
+func (s *MapStore) Seed() [2]string {
+	s.RLock()
+	defer s.RUnlock()
 	i := rand.Intn(len(s.trigrams))
 	var key string
 	for key = range s.trigrams {
