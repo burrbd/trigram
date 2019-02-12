@@ -1,4 +1,4 @@
-package web_test
+package handlers_test
 
 import (
 	"net/http"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/cheekybits/is"
 
-	"github.com/burrbd/trigram/web"
+	"github.com/burrbd/trigram/cmd/web/handlers"
 )
 
 type mockTrigramLearner struct {
@@ -24,7 +24,7 @@ func (learner mockTrigramLearner) Learn(words []string) {
 
 func TestLearnHandler(t *testing.T) {
 	is := is.New(t)
-	h := web.LearnHandler(mockTrigramLearner{})
+	h := handlers.LearnHandler(mockTrigramLearner{})
 	srv := httptest.NewServer(h)
 	defer srv.Close()
 	w := httptest.NewRecorder()
@@ -40,7 +40,7 @@ func TestLearnHandler(t *testing.T) {
 
 func TestLearnHandlerOnlyAcceptsPost(t *testing.T) {
 	is := is.New(t)
-	h := web.LearnHandler(mockTrigramLearner{})
+	h := handlers.LearnHandler(mockTrigramLearner{})
 	srv := httptest.NewServer(h)
 	defer srv.Close()
 	for _, method := range []string{"GET", "PUT", "PATCH", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE"} {
@@ -69,7 +69,7 @@ func TestLearnHandlerCallsTrigramLearner(t *testing.T) {
 	is.NoErr(err)
 	req.Header.Set("Content-Type", "text/plain")
 
-	h := web.LearnHandler(mockLearner)
+	h := handlers.LearnHandler(mockLearner)
 	h.ServeHTTP(httptest.NewRecorder(), req)
 
 	is.True(learnerInvoked)
@@ -95,7 +95,7 @@ that is the question`))
 	is.NoErr(err)
 	req.Header.Set("Content-Type", "text/plain")
 
-	h := web.LearnHandler(mockLearner)
+	h := handlers.LearnHandler(mockLearner)
 	h.ServeHTTP(httptest.NewRecorder(), req)
 
 	is.True(learnerInvoked)

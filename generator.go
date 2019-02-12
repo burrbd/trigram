@@ -14,7 +14,7 @@ type NaturalLanguageGenerator struct {
 	store Store
 }
 
-func NewNaturalLanguageGenerator(store Store) *NaturalLanguageGenerator {
+func NewLanguageGenerator(store Store) *NaturalLanguageGenerator {
 	return &NaturalLanguageGenerator{store}
 }
 

@@ -12,15 +12,15 @@ type Store interface {
 }
 
 type MapStore struct {
-	MaxResultLength int
+	QueryLimit int
 	sync.RWMutex
 	trigrams map[string][]Trigram
 }
 
-func NewMapStore(max int) *MapStore {
+func NewMapStore(limit int) *MapStore {
 	return &MapStore{
-		MaxResultLength: max,
-		trigrams:        make(map[string][]Trigram),
+		QueryLimit: limit,
+		trigrams:   make(map[string][]Trigram),
 	}
 }
 
@@ -44,7 +44,7 @@ func (s *MapStore) GetByPrefix(prefix [2]string) []Trigram {
 }
 
 func (s MapStore) follow(key string, out []Trigram) []Trigram {
-	if s.MaxResultLength != -1 && len(out) >= s.MaxResultLength {
+	if s.QueryLimit != -1 && len(out) >= s.QueryLimit {
 		return out
 	}
 	trigrams, ok := s.trigrams[key]

@@ -44,7 +44,7 @@ func TestNauturalLanguageGeneratorLearn(t *testing.T) {
 		count++
 	}}
 
-	trigram.NewNaturalLanguageGenerator(store).
+	trigram.NewLanguageGenerator(store).
 		Learn([]string{"to", "be", "or", "not", "to"})
 
 	is.Equal(3, count)
@@ -68,7 +68,7 @@ func TestNaturalLanguageGeneratorGenerate(t *testing.T) {
 			return [2]string{"two", "three"}
 		}}
 
-	act := trigram.NewNaturalLanguageGenerator(store).Generate()
+	act := trigram.NewLanguageGenerator(store).Generate()
 	exp := "three four five six"
 
 	is.Equal(exp, act)

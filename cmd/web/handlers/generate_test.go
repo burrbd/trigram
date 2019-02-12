@@ -1,4 +1,4 @@
-package web_test
+package handlers_test
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/cheekybits/is"
 
-	"github.com/burrbd/trigram/web"
+	"github.com/burrbd/trigram/cmd/web/handlers"
 )
 
 type mockNaturalLanguageGenerator struct {
@@ -24,7 +24,7 @@ func (g mockNaturalLanguageGenerator) Generate() string {
 func TestGenerateHandler(t *testing.T) {
 	is := is.New(t)
 
-	h := web.GenerateHandler(mockNaturalLanguageGenerator{})
+	h := handlers.GenerateHandler(mockNaturalLanguageGenerator{})
 
 	srv := httptest.NewServer(h)
 	defer srv.Close()
@@ -42,7 +42,7 @@ func TestGenerateHandler(t *testing.T) {
 
 func TestGenerateHandlerOnlyAcceptsGet(t *testing.T) {
 	is := is.New(t)
-	h := web.GenerateHandler(mockNaturalLanguageGenerator{})
+	h := handlers.GenerateHandler(mockNaturalLanguageGenerator{})
 	srv := httptest.NewServer(h)
 	defer srv.Close()
 	for _, method := range []string{"POST", "PUT", "PATCH", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE"} {
@@ -71,7 +71,7 @@ func TestGenerateHandlerCallsLanguageGenerator(t *testing.T) {
 	is.NoErr(err)
 	req.Header.Set("Content-Type", "text/plain")
 
-	h := web.GenerateHandler(mockGenerator)
+	h := handlers.GenerateHandler(mockGenerator)
 	h.ServeHTTP(w, req)
 
 	is.True(generatorInvoked)
