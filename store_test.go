@@ -131,3 +131,16 @@ func TestMapStoreConcurrency(t *testing.T) {
 
 	store.Add(trigram.NewTrigram("b", "c", "d"))
 }
+
+func TestMapStoreKeyContenation(t *testing.T) {
+	is := is.New(t)
+	store := trigram.NewMapStore(-1)
+
+	tg := trigram.NewTrigram("ab", "c", "e")
+
+	store.Add(tg)
+
+	is.Equal([]trigram.Trigram{}, store.GetByPrefix([2]string{"a", "bc"}))
+
+	is.Equal([]trigram.Trigram{{"ab", "c", "e"}}, store.GetByPrefix([2]string{"ab", "c"}))
+}

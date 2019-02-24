@@ -14,24 +14,24 @@ type Store interface {
 type MapStore struct {
 	QueryLimit int
 	sync.RWMutex
-	trigrams map[string][]Trigram
+	trigrams map[[2]string][]string
 }
 
 func NewMapStore(limit int) *MapStore {
 	return &MapStore{
 		QueryLimit: limit,
-		trigrams:   make(map[string][]Trigram),
+		trigrams:   make(map[[2]string][]string),
 	}
 }
 
 func (s *MapStore) Add(tg Trigram) {
 	s.Lock()
 	defer s.Unlock()
-	key := tg.First + tg.Second
+	key := [2]string{tg.First, tg.Second}
 	if slice, ok := s.trigrams[key]; !ok {
-		s.trigrams[key] = []Trigram{tg}
+		s.trigrams[key] = []string{tg.Third}
 	} else {
-		s.trigrams[key] = append(slice, tg)
+		s.trigrams[key] = append(slice, tg.Third)
 	}
 }
 
@@ -39,40 +39,33 @@ func (s *MapStore) GetByPrefix(prefix [2]string) []Trigram {
 	s.RLock()
 	defer s.RUnlock()
 	out := make([]Trigram, 0)
-	key := prefix[0] + prefix[1]
-	return s.follow(key, out)
+	return s.follow(prefix, out)
 }
 
-func (s MapStore) follow(key string, out []Trigram) []Trigram {
+func (s MapStore) follow(prefix [2]string, out []Trigram) []Trigram {
 	if s.QueryLimit != -1 && len(out) >= s.QueryLimit {
 		return out
 	}
-	trigrams, ok := s.trigrams[key]
+	words, ok := s.trigrams[prefix]
 	if !ok {
 		return out
 	}
 
-	trigram := trigrams[rand.Intn(len(trigrams))]
-
+	word := words[rand.Intn(len(words))]
+	trigram := Trigram{First: prefix[0], Second: prefix[1], Third: word}
 	out = append(out, trigram)
-	key = trigram.Second + trigram.Third
-	return s.follow(key, out)
+	prefix = [2]string{trigram.Second, trigram.Third}
+	return s.follow(prefix, out)
 }
 
 func (s *MapStore) Seed() [2]string {
 	s.RLock()
 	defer s.RUnlock()
-	i := rand.Intn(len(s.trigrams))
-	var key string
+	var key [2]string
 	for key = range s.trigrams {
-		if i == 0 {
-			break
-		}
-		i--
+		break
 	}
-	return [2]string{
-		s.trigrams[key][0].First,
-		s.trigrams[key][0].Second}
+	return key
 }
 
 type Trigram struct {
